@@ -1,29 +1,18 @@
-name: Flask Docker CI/CD
+# Use Python base image
+FROM python:3.11-slim
 
-on:
-  push:
-    branches: [ main ]
+# Set working directory
+WORKDIR /app
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+# Copy the rest of the app
+COPY . .
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+# Expose port
+EXPOSE 5000
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Build Docker Image
-      run: docker build -t flaskapp .
-
-    - name: Run Docker Container
-      run: docker run -d -p 5000:5000 flaskapp
+# Run the Flask app
+CMD ["python", "app.py"]
